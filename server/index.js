@@ -5,30 +5,35 @@ const snackModel = require('./models/Snack')
 
 //receive data as json format
 app.use(express.json())
+var cors = require('cors')
 
+app.use(cors()) // Use this after the variable declaration
 //database connection
 // todo copy this connection link from mongoDB Atlas with secure details.
 mongoose.connect('mongodb+srv://<replacewithmongosuer>:<replacewithmongodbpwd>@<urclustername>.mongodb.net/foodyDB?retryWrites=true&w=majority', { useNewUrlParser: true })
 
-// test peristance to db
-app.get('/', async(req, res) => {
-const snack = new snackModel(
-  {
-    name:'pear',
-    lastDayConsumed: new Date(),
-    isFavorite: true,
-    calories: {
-      value:13,
-      unit:'kcal'
-    }
-  }
-)
-
+// create a snack request
+app.post('/create-snack', async(request,response) => {
   try {
-    await snack.save();
-    res.send('The inserted Snack '+ snack.get('name'))
+    const snack = await snackModel.create(request.body)
+    await snack.save()
+    console.log('success creation')
+    return response.send('ok')
   } catch (error) {
-    console.log('error mongo persist: '+ error)
+    console.log('failed to create a snack', error)
+    return response.status(400).json()
+  }
+})
+
+//get snacks
+app.get('/snacks', async (request,response)=>{
+  try {
+    const snacks = await snackModel.find().lean()
+    console.log('retrieve is successful', snacks.length)
+    return response.status(200).json(snacks)
+  } catch (error) {
+    console.log('failed to get snacks', error)
+    return response.status(400).json()
   }
 })
 
