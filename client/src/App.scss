@@ -1,0 +1,14 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  .create-form {
+    text-align: left;
+  }
+}
+
+input {
+  width: 200px;
+  height: 30px;
+  font-size: medium;
+}

@@ -26,7 +26,7 @@ const snack = new snackModel(
 
   try {
     await snack.save();
-    console.log('insertedFood '+ snack.get('name'))
+    res.send('The inserted Snack '+ snack.get('name'))
   } catch (error) {
     console.log('error mongo persist: '+ error)
   }
