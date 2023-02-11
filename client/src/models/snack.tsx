@@ -1,9 +1,10 @@
 export type snackType = {
-  name:String,
+  _id:string;
+  name:string,
   lastDayConsumed:Date,
-  isFavorite:Boolean,
+  isFavorite:boolean,
   calories:{
-    value:Number,
-    unit:String
+    value:number,
+    unit:string
   }
 }

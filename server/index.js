@@ -29,10 +29,23 @@ app.post('/create-snack', async(request,response) => {
 app.get('/snacks', async (request,response)=>{
   try {
     const snacks = await snackModel.find().lean()
-    console.log('retrieve is successful', snacks.length)
+    console.log('retrieve is successful: ', snacks.length)
     return response.status(200).json(snacks)
   } catch (error) {
-    console.log('failed to get snacks', error)
+    console.log('failed to get snacks: ', error)
+    return response.status(400).json()
+  }
+})
+
+//delete a snack
+app.delete('/delete-snack/:id', async (request,response)=>{
+  try {
+    console.dir(request);
+    const deletedSnack= await snackModel.findByIdAndDelete(request.params.id)
+    console.log('deletion is successful: ', deletedSnack)
+    return response.status(200).json(deletedSnack.name)
+  } catch (error) {
+    console.log('failed to delete snack: ', error)
     return response.status(400).json()
   }
 })
