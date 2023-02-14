@@ -5,7 +5,13 @@ label {
 
 .snacks-container{
   display: flex;
-
+  
+   .add-card {
+    margin-bottom: 9px;
+    height: 215px;
+    display: flex;
+    justify-content: center;
+  }
   .no-data-label {
     text-align: center;
     background-color: #edf6bf;

@@ -80,6 +80,11 @@ const ConfirmationModal = ()=>{
     </Modal>
   );
 }
+const handleCreateForm = useCallback(()=>{
+  console.log("show the create form")
+  setShowForm(true)
+  setSelectedSnack({}as snackType)
+},[])
 // get the snacks after refreshing
 useEffect(()=> {
   updateSnackList()
@@ -88,6 +93,15 @@ useEffect(()=> {
   return(
     <Container className='snacks-container'>
       <Row>
+      <Col>
+          <Card style={{ width: '18rem' }} bg="light" onClick={handleCreateForm} className='add-card'>
+            <Card.Body>
+              <svg xmlns="http://www.w3.org/2000/svg" width="9rem" fill="grey" className="bi bi-file-plus" viewBox="1 0 13 13">
+              <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z"/>
+              </svg>
+            </Card.Body>
+          </Card>
+        </Col>
       {snacks.map((snack:snackType,key)=>
       <Col key={key}>
         <Card key={snack._id} style={{ width: '18rem' }} className="snack-item">

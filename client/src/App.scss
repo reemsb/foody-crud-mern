@@ -9,25 +9,11 @@
    font-size: xx-large;
    text-align: left;
   }
-  .add-card {
-    margin-left: 12px;
-    margin-bottom: 10px;
-    height: 215px;
-    display: flex;
-    justify-content: center;
-  }
   .page-content {
     margin-top: 50px;
     display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
   }
-  .page-content>* {
-flex:1 2 auto;
-}
-  .create-form {
-    text-align: left;
-  }
+
 }
 
 input {
