@@ -50,6 +50,18 @@ app.delete('/delete-snack/:id', async (request,response)=>{
   }
 })
 
+//update a snack
+app.put('/snack/:_id',async(request,response) => {
+  try {
+    console.log(`updating ${request.params._id}, with ${request.body}`)
+    const snackUpdated = await snackModel.findByIdAndUpdate(request.params._id,request.body,{new :true}).lean()
+    console.log('success update')
+    return response.status(200).json(snackUpdated)
+  } catch (error) {
+    console.log('failed to update a snack', error)
+    return response.status(400).json()
+  }
+})
 
 //the node server is running 
 app.listen(3001, () => {

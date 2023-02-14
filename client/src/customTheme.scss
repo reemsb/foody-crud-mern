@@ -1,0 +1,31 @@
+// Override default variables before the import
+// you can open the bootstrap.scss module and check any available variables.
+$primary: #f28a01c3;
+$secondary: #d4ddbaea;
+$success: #00b052;
+$info: #d5f0e8;
+$warning: #b8c924;
+$danger: #ff4a4ad7;
+$light: #edf6bf;
+$dark: #116940;
+
+//custom color to be mapped
+$accent : #6d6a68;
+
+// this is used to map colors. change accordingly.
+$theme-colors: (
+  primary: $primary,
+  secondary: $secondary,
+  success: $success,
+  info: $info,
+  warning: $warning,
+  danger: $danger,
+  light: $light,
+  dark: $dark,
+// add any additional color below
+  accent: $accent,
+// now bg-accent,btn-accent,etc.. can be called
+);
+
+// Import Bootstrap and its default variables
+@import '~bootstrap/scss/bootstrap.scss';

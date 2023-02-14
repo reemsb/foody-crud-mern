@@ -1,0 +1,15 @@
+.calories-input {
+display: flex;
+flex-wrap: wrap;
+flex-direction: row;
+flex: 1 2 auto;
+
+  select {
+   max-width: 50%;
+   margin-left: 110px;
+  }
+
+  input {
+    height: 36px;
+  }
+}

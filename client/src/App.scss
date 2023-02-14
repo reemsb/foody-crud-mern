@@ -2,6 +2,29 @@
   text-align: center;
   display: flex;
   flex-direction: column;
+
+  .label-navbar {
+   margin-top: 5px;
+   margin-left: 10px;
+   font-size: xx-large;
+   text-align: left;
+  }
+  .add-card {
+    margin-left: 12px;
+    margin-bottom: 10px;
+    height: 215px;
+    display: flex;
+    justify-content: center;
+  }
+  .page-content {
+    margin-top: 50px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+  .page-content>* {
+flex:1 2 auto;
+}
   .create-form {
     text-align: left;
   }
@@ -11,4 +34,10 @@ input {
   width: 200px;
   height: 30px;
   font-size: medium;
+}
+
+button {
+  max-width: 100px;
+  margin-right: 5px;
+  position: relative;
 }

@@ -5,8 +5,7 @@ const mongoose = require('mongoose')
 const snackSchema= new mongoose.Schema({
   name: { 
     type:String,
-    required:true,
-    unique: true
+    required:true
   },
   lastDayConsumed:Date,
   isFavorite:Boolean,
