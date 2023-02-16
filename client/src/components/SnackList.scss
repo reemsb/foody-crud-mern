@@ -5,7 +5,7 @@ label {
 
 .snacks-container{
   display: flex;
-  
+  flex-direction: column;
    .add-card {
     margin-bottom: 9px;
     height: 215px;

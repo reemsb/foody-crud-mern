@@ -1,5 +1,5 @@
 {
-    "extends": ["airbnb","prettier","plugin:node/recommended"],
+    "extends": ["airbnb","airbnb-typescript","prettier","plugin:node/recommended"],
     "plugins": ["prettier"],
     "rules": {
         "prettier/prettier":[
@@ -8,6 +8,15 @@
               "endOfLine": "off"
             }
           ],
+          "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+              "js": "never",
+              "tsx": "never",
+              "ts": "never"
+            }
+         ],
         "func-names":"off",
         "no-unused-vars":"warn",
         "no-console":"off",

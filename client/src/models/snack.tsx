@@ -4,7 +4,7 @@ export type snackType = {
   lastDayConsumed:Date,
   isFavorite:boolean,
   calories:{
-    value:number,
-    unit:string
+    value:number|undefined,
+    unit:string|undefined
   }
 }

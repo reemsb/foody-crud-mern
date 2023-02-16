@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Axios from 'axios';
-import { Card, Container, Row, Col, Button, Modal} from 'react-bootstrap/';
+import { Card, Container, Row, Col, Button, Modal, Form, InputGroup} from 'react-bootstrap/';
 import { snackType } from '../models/snack';
 import { NotificationManager } from 'react-notifications';
 import './SnackList.scss';
@@ -19,33 +19,15 @@ const [snacks, setSnacks] = useState([])
 const [show, setShow]= useState(false);
 const [showForm,setShowForm] = useState(false);
 const[selectedSnack,setSelectedSnack]=useState(():snackType=>{return {} as snackType});
-
-//deletion Handler
-const handleDeletion = useCallback((snackID:string)=> {
-Axios.delete('http://localhost:3001/delete-snack/'+ snackID).then((response)=>{
-  setShow(false);
-  if(snacks.length) {
-  const cleanSnackList= snacks.filter((snack:snackType)=>snack._id!==snackID)
-  setSnacks(cleanSnackList)
-  }
-  NotificationManager.success(response.data +' has been removed','Success',2000)
-}).catch(error=>{
-  console.log('something went wrong', error)
-  NotificationManager.success('Deletion process idd not went through','Failure',2000)
-})
-},[setSnacks, snacks])
+const [searchName,setSearchName]=useState('');
 
 
-// open deletion confirmation modal
-const openConfirmDeleteModal= useCallback((snackToDelete:snackType)=> {
-  setSelectedSnack(snackToDelete);
-  setShow(true);
-},[setShow])
-//close delete confirmation modal
-const handleClose = useCallback(()=>{
-  setShow(false);
-  },[setShow])
-
+// open create form handler
+const handleCreateForm = useCallback(()=>{
+  console.log("show the create form")
+  setShowForm(true)
+  setSelectedSnack({}as snackType)
+},[])
 // open form to edit the selected snack
 const openCreateEditSnack= useCallback((snackToUpdate:snackType)=> {
   console.log("the update callback to open the form")
@@ -57,12 +39,32 @@ const openCreateEditSnack= useCallback((snackToUpdate:snackType)=> {
 const callbackModal = useCallback(()=>{
   setShowForm(false)
 },[])
-//callback to children to update the snack list:
-const updateSnackList= useCallback(()=>{
-  Axios.get('http://localhost:3001/snacks').then((res)=>setSnacks(res.data))
-},[])
 
-const ConfirmationModal = ()=>{
+// open deletion confirmation modal
+const openConfirmDeleteModal= useCallback((snackToDelete:snackType)=> {
+  setSelectedSnack(snackToDelete);
+  setShow(true);
+},[setShow])
+//close delete confirmation modal
+const handleClose = useCallback(()=>{
+  setShow(false);
+  },[setShow])
+  //deletion Handler
+const handleDeletion = useCallback((snackID:string)=> {
+  Axios.delete('http://localhost:3001/delete-snack/'+ snackID).then((response)=>{
+  setShow(false);
+  if(snacks.length) {
+    const cleanSnackList= snacks.filter((snack:snackType)=>snack._id!==snackID)
+    setSnacks(cleanSnackList)
+  }
+  NotificationManager.success(response.data +' has been removed','Success',2000)
+  }).catch(error => {
+    console.log('something went wrong', error)
+    NotificationManager.success('Deletion process idd not went through','Failure',2000)
+  })
+},[setSnacks, snacks])
+// deletion confirmation modal
+const ConfirmationModal = () =>{
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -80,10 +82,11 @@ const ConfirmationModal = ()=>{
     </Modal>
   );
 }
-const handleCreateForm = useCallback(()=>{
-  console.log("show the create form")
-  setShowForm(true)
-  setSelectedSnack({}as snackType)
+
+
+// callback to children to update the snack list:
+const updateSnackList= useCallback(()=>{
+  Axios.get('http://localhost:3001/snacks').then((res)=>setSnacks(res.data))
 },[])
 // get the snacks after refreshing
 useEffect(()=> {
@@ -93,7 +96,15 @@ useEffect(()=> {
   return(
     <Container className='snacks-container'>
       <Row>
-      <Col>
+        <Form>
+          <InputGroup className='my-3'>
+            <Form.Control onChange={(e)=>setSearchName(e.target.value)} placeholder='Search for snacks by names'>
+            </Form.Control>
+          </InputGroup>
+         </Form>
+      </Row>
+      <Row>
+        <Col>
           <Card style={{ width: '18rem' }} bg="light" onClick={handleCreateForm} className='add-card'>
             <Card.Body>
               <svg xmlns="http://www.w3.org/2000/svg" width="9rem" fill="grey" className="bi bi-file-plus" viewBox="1 0 13 13">
@@ -102,38 +113,41 @@ useEffect(()=> {
             </Card.Body>
           </Card>
         </Col>
-      {snacks.map((snack:snackType,key)=>
-      <Col key={key}>
-        <Card key={snack._id} style={{ width: '18rem' }} className="snack-item">
-        {/* <Card.Img variant="top" src="holder.js/100px180" /> */}
-        <Card.Body>
-          <Card.Title>{snack.name}</Card.Title>
-          <Card.Text className="card-text">
-          <>
-          <label>Last Day Consumed: </label> {formatDate(snack?.lastDayConsumed)}
-          <br/>
-          <label>Favorite: </label> {getFavoriteIconStatus(snack?.isFavorite)}
-          <br/>
-          <label>Calories: </label> {snack?.calories?.value} {snack?.calories?.unit}
-          </>
-          </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <Button variant="primary" onClick={(event)=>openCreateEditSnack(snack)}>Update</Button>
-          <Button variant="secondary" onClick={(event)=>openConfirmDeleteModal(snack)}>Remove</Button>
-        </Card.Footer>
-      </Card>
-      </Col>
+
+      {snacks.filter((snack:snackType) => {
+        return searchName.toLowerCase()!==''?snack?.name?.toLowerCase().includes(searchName.toLowerCase()):snack
+      }).map((snack:snackType,key)=>
+        <Col key={key}>
+          <Card key={snack._id} style={{ width: '18rem' }} className="snack-item">
+          {/* <Card.Img variant="top" src="holder.js/100px180" /> */}
+            <Card.Body>
+              <Card.Title>{snack.name}</Card.Title>
+              <Card.Text className="card-text">
+               <>
+                <label>Last Day Consumed: </label> {formatDate(snack?.lastDayConsumed)}
+                <br/>
+                <label>Favorite: </label> {getFavoriteIconStatus(snack?.isFavorite)}
+                <br/>
+                <label>Calories: </label> {snack?.calories?.value} {snack?.calories?.unit}
+                </>
+              </Card.Text>
+            </Card.Body>
+            <Card.Footer>
+              <Button variant="primary" onClick={(event)=>openCreateEditSnack(snack)}>Update</Button>
+              <Button variant="secondary" onClick={(event)=>openConfirmDeleteModal(snack)}>Remove</Button>
+            </Card.Footer>
+          </Card>
+        </Col>
       )}
       </Row>
       {snacks.length===0 &&
       <div>
-      <label className='no-data-label'>-No data has been found-</label>
+        <label className='no-data-label'>-No data has been found-</label>
       </div>}
       <ConfirmationModal/>
       <SnackForm showForm={showForm} selectedSnack={selectedSnack} callbackModal={callbackModal}/>
     </Container>
    
-);
+  );
 }
 export default SnackList
