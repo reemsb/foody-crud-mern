@@ -1,10 +1,10 @@
-export type snackType = {
+export type Snack = {
   _id:string;
   name:string,
   lastDayConsumed:Date,
   isFavorite:boolean,
   calories:{
-    value:number|undefined,
-    unit:string|undefined
+    value:number,
+    unit:string
   }
 }

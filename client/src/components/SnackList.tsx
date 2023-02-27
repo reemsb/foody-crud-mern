@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Axios from 'axios';
 import { Card, Container, Row, Col, Button, Modal, Form, InputGroup} from 'react-bootstrap/';
-import { snackType } from '../models/snack';
+import { Snack } from '../models/snack';
 import { NotificationManager } from 'react-notifications';
 import './SnackList.scss';
 import SnackForm from './SnackForm.tsx';
 import { formatDate, getFavoriteIconStatus } from '../utils/utilsUI.tsx';
-
+import useSnackStore from '../stores/snackStore.tsx';
 
 
 /**
@@ -15,10 +15,11 @@ import { formatDate, getFavoriteIconStatus } from '../utils/utilsUI.tsx';
  */
 function SnackList() {
   // local state
-const [snacks, setSnacks] = useState([])
+const snacks = useSnackStore(state=>state.snacks);
+const setSnacks = useSnackStore(state=>state.setSnacks)
 const [show, setShow]= useState(false);
 const [showForm,setShowForm] = useState(false);
-const[selectedSnack,setSelectedSnack]=useState(():snackType=>{return {} as snackType});
+const[selectedSnack,setSelectedSnack]=useState(():Snack=>{return {} as Snack});
 const [searchName,setSearchName]=useState('');
 
 
@@ -26,10 +27,9 @@ const [searchName,setSearchName]=useState('');
 const handleCreateForm = useCallback(()=>{
   console.log("show the create form")
   setShowForm(true)
-  setSelectedSnack({}as snackType)
 },[])
 // open form to edit the selected snack
-const openCreateEditSnack= useCallback((snackToUpdate:snackType)=> {
+const openCreateEditSnack= useCallback((snackToUpdate:Snack)=> {
   console.log("the update callback to open the form")
   setSelectedSnack(snackToUpdate);
   setShowForm(true);
@@ -41,7 +41,7 @@ const callbackModal = useCallback(()=>{
 },[])
 
 // open deletion confirmation modal
-const openConfirmDeleteModal= useCallback((snackToDelete:snackType)=> {
+const openConfirmDeleteModal= useCallback((snackToDelete:Snack)=> {
   setSelectedSnack(snackToDelete);
   setShow(true);
 },[setShow])
@@ -53,16 +53,12 @@ const handleClose = useCallback(()=>{
 const handleDeletion = useCallback((snackID:string)=> {
   Axios.delete('http://localhost:3001/delete-snack/'+ snackID).then((response)=>{
   setShow(false);
-  if(snacks.length) {
-    const cleanSnackList= snacks.filter((snack:snackType)=>snack._id!==snackID)
-    setSnacks(cleanSnackList)
-  }
   NotificationManager.success(response.data +' has been removed','Success',2000)
   }).catch(error => {
     console.log('something went wrong', error)
     NotificationManager.success('Deletion process idd not went through','Failure',2000)
   })
-},[setSnacks, snacks])
+},[])
 // deletion confirmation modal
 const ConfirmationModal = () =>{
   return (
@@ -87,7 +83,7 @@ const ConfirmationModal = () =>{
 // callback to children to update the snack list:
 const updateSnackList= useCallback(()=>{
   Axios.get('http://localhost:3001/snacks').then((res)=>setSnacks(res.data))
-},[])
+},[setSnacks])
 // get the snacks after refreshing
 useEffect(()=> {
   updateSnackList()
@@ -114,9 +110,9 @@ useEffect(()=> {
           </Card>
         </Col>
 
-      {snacks.filter((snack:snackType) => {
+      {snacks.filter((snack:Snack) => {
         return searchName.toLowerCase()!==''?snack?.name?.toLowerCase().includes(searchName.toLowerCase()):snack
-      }).map((snack:snackType,key)=>
+      }).map((snack:Snack,key)=>
         <Col key={key}>
           <Card key={snack._id} style={{ width: '18rem' }} className="snack-item">
           {/* <Card.Img variant="top" src="holder.js/100px180" /> */}
@@ -147,7 +143,6 @@ useEffect(()=> {
       <ConfirmationModal/>
       <SnackForm showForm={showForm} selectedSnack={selectedSnack} callbackModal={callbackModal}/>
     </Container>
-   
   );
 }
 export default SnackList

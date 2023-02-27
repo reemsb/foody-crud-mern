@@ -1,8 +1,8 @@
-import './App.scss';
-import React from 'react';
-import { NotificationContainer } from 'react-notifications';
-import { Col, Container, Navbar } from 'react-bootstrap';
-import SnackList from './components/SnackList.tsx';
+import './App.scss'
+import React from 'react'
+import { NotificationContainer } from 'react-notifications'
+import { Col, Container, Navbar } from 'react-bootstrap'
+import SnackList from './components/SnackList.tsx'
 
 /**
  * Holds the one page application for managing snacks.

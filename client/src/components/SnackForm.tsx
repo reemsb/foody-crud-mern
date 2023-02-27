@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {useCallback, useState } from 'react';
 import 'react-notifications/lib/notifications.css';
 import { NotificationManager } from 'react-notifications';
-import { snackType } from '../models/snack';
+import { Snack } from '../models/snack';
 import Axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import {Modal,Form,FormGroup, Row, Col} from 'react-bootstrap/';
 import { getLocalDateTimeInput } from '../utils/utilsUI.tsx';
 import './SnackForm.scss'
+import useSnackStore from '../stores/snackStore.tsx';
 
 //form props
 export type formProps= {
   showForm: boolean,
   callbackModal:any,
-  selectedSnack?:snackType
+  selectedSnack?:Snack
 }
 /**
  * Create and edit form for a snack.
@@ -21,39 +22,48 @@ export type formProps= {
  * @returns createEditForm of a snack
  */
 function SnackForm(props:formProps) {
-  //initial states in edit mode:
-const initialValues = props.selectedSnack?{
-  name: props.selectedSnack.name,
-  favorite: props.selectedSnack.isFavorite,
-  lastDay: props.selectedSnack.lastDayConsumed,
-  caloriesValue: props.selectedSnack.calories?.value,
-  caloriesUnit: props.selectedSnack.calories?.unit,
-}:{
-  name:'',
-  favorite: false,
-  lastDay: '',
-  caloriesValue: 0,
-  caloriesUnit: "Kcal",
-}
+  //store states
+const addSnack = useSnackStore(state=>state.addSnack);
+const editSnack = useSnackStore(state=>state.editSnack);
 
+    //initial states in edit mode:
+    const initialValues:Partial<Snack> = props.selectedSnack?{
+      name: props.selectedSnack.name,
+      isFavorite: props.selectedSnack.isFavorite,
+      lastDayConsumed: props.selectedSnack.lastDayConsumed,
+      calories:{
+        value: props.selectedSnack.calories?.value,
+        unit: props.selectedSnack.calories?.unit
+      }
+       
+    }:{
+      name:'',
+      isFavorite: false,
+      lastDayConsumed: new Date(),
+      calories: {
+        value: 0,
+        unit: 'Kcal'
+      }
+    }
   //local states definition
-  const [name,setName] = useState<string>()
-  const [favorite,setFavorite] = useState<boolean>();
-  const [lastDay,setLastDay] = useState<Date>();
-  const [caloriesValue,setCaloriesValue] = useState<number>();
-  const [cloriesUnit,setCaloriesUnit] = useState<string>();
-  
+  const [name,setName] = useState(initialValues.name)
+  const [favorite,setFavorite] = useState(initialValues.isFavorite);
+  const [lastDay,setLastDay] = useState(initialValues.lastDayConsumed);
+  const [caloriesValue,setCaloriesValue] = useState(initialValues?.calories?.value);
+  const [cloriesUnit,setCaloriesUnit] = useState(initialValues?.calories?.unit);
+
 //callbacks
   const createSnack = useCallback(()=>{
-    let snackToAdd:Partial<snackType>= {
-      name:name!==''?name:'Snack',
+    let snackToAdd:Partial<Snack>= {
+      name:name,
       lastDayConsumed:lastDay,
       isFavorite:favorite,
       calories:{
-        value:caloriesValue,
-        unit:cloriesUnit
+        value:caloriesValue as number,
+        unit:cloriesUnit as string
       }
     }
+    console.log("snack to be created: "+snackToAdd.calories)
     Axios.post('http://localhost:3001/create-snack', snackToAdd)
     .then((response)=>{
       NotificationManager.success('The snack has been added', 'Success', 2000);
@@ -66,7 +76,7 @@ const initialValues = props.selectedSnack?{
 
 const updateSnack = useCallback(()=> {
   if(!!props.selectedSnack) {
-    let snack:snackType= {
+    let snack:Snack= {
       _id:props.selectedSnack._id,
       name:name as string,
       lastDayConsumed:lastDay as Date,
@@ -79,6 +89,7 @@ const updateSnack = useCallback(()=> {
     Axios.put('http://localhost:3001/snack/'+ snack._id, snack)
     .then((response)=>{
       NotificationManager.success('The snack has been updated', 'Success', 2000);
+
     })
     .catch((error)=>{
       NotificationManager.error('The snack was not updated, something went wrong', 'Failure', 5000)
@@ -100,20 +111,7 @@ const CreateUpdateSnack = useCallback(()=>{
     createSnack()
   }
   props.callbackModal()
-  window.location.reload()
 },[createSnack, props, updateSnack])
-
-useEffect(()=>{
-setName(initialValues.name)
-setFavorite(initialValues.favorite)
-setCaloriesValue(initialValues.caloriesValue)
-setCaloriesUnit(initialValues.caloriesUnit)
-setLastDay(initialValues.lastDay as Date)
-},[initialValues.caloriesUnit,
-  initialValues.caloriesValue,
-  initialValues.favorite,
-  initialValues.lastDay,
-  initialValues.name])
 
   //UI
 return(
@@ -161,10 +159,10 @@ return(
                 </Col>
                 <Col>
                   <Form.Select aria-label="Unit"
-                  value={cloriesUnit}
-                  onChange={(event)=>setCaloriesUnit(event.target.value)}>
-                  <option value="Kj">Kcal</option>
-                  <option value="Kcal">Kj</option>
+                  onChange={(event)=>{
+                    setCaloriesUnit(event.target.value)}}>
+                  <option value="Kcal">Kcal</option>
+                  <option value="Kj">Kj</option>
                   </Form.Select>
                 </Col>
               </Row>

@@ -10,7 +10,7 @@ var cors = require('cors')
 app.use(cors()) // Use this after the variable declaration
 //database connection
 // todo copy this connection link from mongoDB Atlas with secure details.
-mongoose.connect('mongodb+srv://<replacewithmongosuer>:<replacewithmongodbpwd>@<urclustername>.mongodb.net/foodyDB?retryWrites=true&w=majority', { useNewUrlParser: true })
+mongoose.connect('mongodb+srv://mongoboss:hsh4CDk1AE7JVffU@cluster0.tsdikn0.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true })
 
 // create a snack request
 app.post('/create-snack', async(request,response) => {

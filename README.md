@@ -6,6 +6,7 @@
 - **[Express](https://expressjs.com/)** (4.x)
 - **[Mongoose](https://mongoosejs.com/)** (6.x)
 - **[Typescript](https://www.typescriptlang.org/)** (4.x)
+- **[Zustand](https://github.com/pmndrs/zustand)**
 - **[SASS](http://sass-lang.com/)** (1.x)
 - **[ESlint](https://eslint.org/docs/latest/)**
 
