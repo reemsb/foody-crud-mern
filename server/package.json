@@ -1,19 +1,35 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "the beackend for our foody app handling requests and database connections",
-  "main": "index.js",
-  "scripts": {
-    "start": "node app.js",
-    "devStart": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Rsb",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mongoose": "^6.9.1",
-    "nodemon": "^2.0.20"
-  }
+"name": "server",
+"version": "1.0.0",
+"description": "Production-ready Express backend for Foody app",
+"main": "src/index.js",
+"type": "module",
+"scripts": {
+  "start": "node src/index.js",
+  "dev": "nodemon --watch src --exec node src/index.js",
+  "lint": "eslint .",
+  "docker:build": "docker build -t foody-server .",
+  "docker:run": "docker run -p 3001:3001 --env-file .env foody-server"
+},
+"author": "Rsb",
+"license": "ISC",
+"dependencies": {
+  "compression": "^1.7.4",
+  "cors": "^2.8.5",
+  "dotenv": "^16.0.0",
+  "express": "^5.0.0",
+  "helmet": "^7.0.0",
+  "http-errors": "^2.0.0",
+  "mongoose": "^8.0.0",
+  "rate-limiter-flexible": "^7.3.1",
+  "winston": "^3.8.2"
+},
+"devDependencies": {
+  "nodemon": "^3.1.0",
+  "eslint": "^8.0.0",
+  "prettier": "^2.8.0"
+},
+"engines": {
+  "node": ">=20"
+}
 }
