@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    container_name: foody-server
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3001}
+      MONGO_URI: ${MONGO_URI}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ${SERVER_VOL:-}
+    command: >
+      sh -c "if [ '$${NODE_ENV}' = 'development' ];
+             then ${SERVER_CMD};
+             else node src/index.js;
+             fi"
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+    container_name: foody-client
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ${CLIENT_VOL:-}
+    command: >
+      sh -c "if [ '$${NODE_ENV}' = 'development' ];
+             then ${CLIENT_CMD};
+             else npx serve -s build -l 80;
+             fi"
+    restart: unless-stopped
