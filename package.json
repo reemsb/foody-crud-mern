@@ -21,7 +21,7 @@
     "@typescript-eslint/parser": "^5.51.0",
     "eslint": "^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-node": "^4.1.0",
+    "eslint-config-node": "^1.6.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-jsx-a11y": "^6.5.1",
