@@ -1,8 +1,10 @@
-import './App.scss'
-import React from 'react'
-import { NotificationContainer } from 'react-notifications'
-import { Col, Container, Navbar } from 'react-bootstrap'
-import SnackList from './components/SnackList.tsx'
+import './App.scss';
+// import {
+//   NotificationContainer,
+//   NotificationManager,
+// } from 'react-notifications';
+import { Col, Container, Navbar } from 'react-bootstrap';
+import SnackList from './components/SnackList.tsx';
 
 /**
  * Holds the one page application for managing snacks.
@@ -10,30 +12,29 @@ import SnackList from './components/SnackList.tsx'
  * @returns App.tsx
  */
 function App() {
-
   return (
     <div className="App">
       <Navbar bg="primary" variant="light">
         <Container>
           <Navbar.Brand href="/">
-           <img
-          alt="snack-logo"
-          src="https://img.icons8.com/external-vitaliy-gorbachev-lineal-color-vitaly-gorbachev/60/null/external-baby-plate-baby-vitaliy-gorbachev-lineal-color-vitaly-gorbachev.png"
-          width="60"
-          height="60"
-          className="d-inline-block align-top"
-          />{' '}
-          <label className="label-navbar">Snack Diary</label>
+            <img
+              alt="snack-logo"
+              src="https://img.icons8.com/external-vitaliy-gorbachev-lineal-color-vitaly-gorbachev/60/null/external-baby-plate-baby-vitaliy-gorbachev-lineal-color-vitaly-gorbachev.png"
+              width="60"
+              height="60"
+              className="d-inline-block align-top"
+            />{' '}
+            <label className="label-navbar">Snack Diary</label>
           </Navbar.Brand>
         </Container>
-       </Navbar>
+      </Navbar>
 
       <Container className="page-content">
         <Col>
-          <SnackList/>
+          <SnackList />
         </Col>
       </Container>
-      <NotificationContainer/>
+      {/* <NotificationContainer /> */}
     </div>
   );
 }

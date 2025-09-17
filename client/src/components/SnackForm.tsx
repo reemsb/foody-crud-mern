@@ -1,7 +1,7 @@
 import React from 'react';
 import { useCallback, useState } from 'react';
 import 'react-notifications/lib/notifications.css';
-import { NotificationManager } from 'react-notifications';
+// import { NotificationManager } from 'react-notifications';
 import { Snack } from '../models/snack';
 import Axios from 'axios';
 import Button from 'react-bootstrap/Button';
@@ -69,20 +69,20 @@ function SnackForm(props: formProps) {
       },
     };
     console.log('snack to be created: ' + snackToAdd.calories);
-    Axios.post('http://localhost:3001/create-snack', snackToAdd)
+    Axios.post('http://localhost:3001/api/v1/snacks/', snackToAdd)
       .then((response) => {
-        NotificationManager.success(
-          'The snack has been added',
-          'Success',
-          2000
-        );
+        // NotificationManager.success(
+        //   'The snack has been added',
+        //   'Success',
+        //   2000
+        // );
       })
       .catch((error) => {
-        NotificationManager.error(
-          'The snack was not added, something went wrong',
-          'Failure',
-          5000
-        );
+        // NotificationManager.error(
+        //   'The snack was not added, something went wrong',
+        //   'Failure',
+        //   5000
+        // );
       });
   }, [caloriesValue, cloriesUnit, favorite, lastDay, name]);
 
@@ -98,20 +98,20 @@ function SnackForm(props: formProps) {
           unit: cloriesUnit as string,
         },
       };
-      Axios.put('http://localhost:3001/snack/' + snack._id, snack)
+      Axios.put('http://localhost:3001/api/v1/snacks/' + snack._id, snack)
         .then((response) => {
-          NotificationManager.success(
-            'The snack has been updated',
-            'Success',
-            2000
-          );
+          // NotificationManager.success(
+          //   'The snack has been updated',
+          //   'Success',
+          //   2000
+          // );
         })
         .catch((error) => {
-          NotificationManager.error(
-            'The snack was not updated, something went wrong',
-            'Failure',
-            5000
-          );
+          // NotificationManager.error(
+          //   'The snack was not updated, something went wrong',
+          //   'Failure',
+          //   5000
+          // );
         });
     } else {
       console.warn(' No snack found to edit here');

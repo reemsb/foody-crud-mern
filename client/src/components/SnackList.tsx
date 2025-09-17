@@ -11,7 +11,7 @@ import {
   InputGroup,
 } from 'react-bootstrap/';
 import { Snack } from '../models/snack';
-import { NotificationManager } from 'react-notifications';
+// import { NotificationManager } from 'react-notifications';
 import './SnackList.scss';
 import SnackForm from './SnackForm.tsx';
 import { formatDate, getFavoriteIconStatus } from '../utils/utilsUI.tsx';
@@ -63,22 +63,22 @@ function SnackList() {
   }, [setShow]);
   //deletion Handler
   const handleDeletion = useCallback((snackID: string) => {
-    Axios.delete('http://localhost:3001/delete-snack/' + snackID)
+    Axios.delete('http://localhost:3001/api/v1/snacks/' + snackID)
       .then((response) => {
         setShow(false);
-        NotificationManager.success(
-          response.data + ' has been removed',
-          'Success',
-          2000
-        );
+        // NotificationManager.success(
+        //   response.data + ' has been removed',
+        //   'Success',
+        //   2000
+        // );
       })
       .catch((error) => {
         console.log('something went wrong', error);
-        NotificationManager.success(
-          'Deletion process idd not went through',
-          'Failure',
-          2000
-        );
+        // NotificationManager.success(
+        //   'Deletion process idd not went through',
+        //   'Failure',
+        //   2000
+        // );
       });
   }, []);
   // deletion confirmation modal
@@ -108,7 +108,7 @@ function SnackList() {
 
   // callback to children to update the snack list:
   const updateSnackList = useCallback(() => {
-    Axios.get('http://localhost:3001/snacks').then((res) =>
+    Axios.get('http://localhost:3001/api/v1/snacks/').then((res) =>
       setSnacks(res.data)
     );
   }, [setSnacks]);
