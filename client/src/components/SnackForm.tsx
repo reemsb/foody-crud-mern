@@ -1,14 +1,12 @@
-import React from 'react';
 import { useCallback, useState } from 'react';
-import 'react-notifications/lib/notifications.css';
-// import { NotificationManager } from 'react-notifications';
-import { Snack } from '../models/snack';
 import Axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import { Modal, Form, FormGroup, Row, Col } from 'react-bootstrap/';
-import { getLocalDateTimeInput } from '../utils/utilsUI.tsx';
 import './SnackForm.scss';
-import useSnackStore from '../stores/snackStore.tsx';
+import useSnackStore from '../stores/snackStore';
+import { Snack } from '../models/snack';
+import { getLocalDateTimeInput } from '../utils/utilsUI';
+import { toast } from 'react-toastify';
 
 //form props
 export type formProps = {
@@ -71,18 +69,12 @@ function SnackForm(props: formProps) {
     console.log('snack to be created: ' + snackToAdd.calories);
     Axios.post('http://localhost:3001/api/v1/snacks/', snackToAdd)
       .then((response) => {
-        // NotificationManager.success(
-        //   'The snack has been added',
-        //   'Success',
-        //   2000
-        // );
+        addSnack(response.data);
+        props.callbackModal();
+        toast.success(`${response.data.name} was added successfully!`);
       })
       .catch((error) => {
-        // NotificationManager.error(
-        //   'The snack was not added, something went wrong',
-        //   'Failure',
-        //   5000
-        // );
+        toast.error('The snack was not added, something went wrong');
       });
   }, [caloriesValue, cloriesUnit, favorite, lastDay, name]);
 
@@ -100,21 +92,15 @@ function SnackForm(props: formProps) {
       };
       Axios.put('http://localhost:3001/api/v1/snacks/' + snack._id, snack)
         .then((response) => {
-          // NotificationManager.success(
-          //   'The snack has been updated',
-          //   'Success',
-          //   2000
-          // );
+          editSnack(response.data);
+          toast.success(`${response.data.name} was updated successfully!`);
+          props.callbackModal();
         })
         .catch((error) => {
-          // NotificationManager.error(
-          //   'The snack was not updated, something went wrong',
-          //   'Failure',
-          //   5000
-          // );
+          toast.error('The snack was not updated, something went wrong');
         });
     } else {
-      console.warn(' No snack found to edit here');
+      console.warn('No snack found to edit here');
     }
   }, [
     caloriesValue,
@@ -123,6 +109,8 @@ function SnackForm(props: formProps) {
     lastDay,
     name,
     props.selectedSnack,
+    editSnack,
+    props,
   ]);
 
   const CreateUpdateSnack = useCallback(() => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Axios from 'axios';
 import {
   Card,
@@ -11,11 +11,12 @@ import {
   InputGroup,
 } from 'react-bootstrap/';
 import { Snack } from '../models/snack';
-// import { NotificationManager } from 'react-notifications';
 import './SnackList.scss';
-import SnackForm from './SnackForm.tsx';
-import { formatDate, getFavoriteIconStatus } from '../utils/utilsUI.tsx';
-import useSnackStore from '../stores/snackStore.tsx';
+import useSnackStore from '../stores/snackStore';
+import SnackForm from './SnackForm';
+import { formatDate, getFavoriteIconStatus } from '../utils/utilsUI';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
  * All the component's functions and login related to the all displayed snack List.
@@ -25,9 +26,10 @@ function SnackList() {
   // local state
   const snacks = useSnackStore((state) => state.snacks);
   const setSnacks = useSnackStore((state) => state.setSnacks);
+  const deleteSnack = useSnackStore((state) => state.removeSnack);
   const [show, setShow] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [selectedSnack, setSelectedSnack] = useState((): Snack => {
+  const [selectedSnack, setSelectedSnack] = useState(() => {
     return {} as Snack;
   });
   const [searchName, setSearchName] = useState('');
@@ -38,11 +40,14 @@ function SnackList() {
     setShowForm(true);
   }, []);
   // open form to edit the selected snack
-  const openCreateEditSnack = useCallback((snackToUpdate: Snack) => {
-    console.log('the update callback to open the form');
-    setSelectedSnack(snackToUpdate);
-    setShowForm(true);
-  }, []);
+  const openEditSnack = useCallback(
+    (snackToUpdate: Snack) => {
+      setSelectedSnack({ ...snackToUpdate });
+      console.log(`the update callback to open the form`);
+      setShowForm(true);
+    },
+    [setShowForm]
+  );
 
   // callback modal for closing edit form:
   const callbackModal = useCallback(() => {
@@ -66,19 +71,12 @@ function SnackList() {
     Axios.delete('http://localhost:3001/api/v1/snacks/' + snackID)
       .then((response) => {
         setShow(false);
-        // NotificationManager.success(
-        //   response.data + ' has been removed',
-        //   'Success',
-        //   2000
-        // );
+        deleteSnack(snackID);
+        toast.success(`${response.data.name} was deleted successfully`);
       })
       .catch((error) => {
         console.log('something went wrong', error);
-        // NotificationManager.success(
-        //   'Deletion process idd not went through',
-        //   'Failure',
-        //   2000
-        // );
+        toast.error(`Something went wrong! the selected was not deleted`);
       });
   }, []);
   // deletion confirmation modal
@@ -119,38 +117,33 @@ function SnackList() {
 
   return (
     <Container className="snacks-container">
-      <Row>
-        <Form>
-          <InputGroup className="my-3">
-            <Form.Control
-              onChange={(e) => setSearchName(e.target.value)}
-              placeholder="Search for snacks by names"
-            ></Form.Control>
-          </InputGroup>
-        </Form>
+      <Row className="create">
+        <Col>
+          <Button onClick={handleCreateForm} variant="primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="bi bi-file-plus"
+              viewBox="1 0 13 13"
+            >
+              <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z" />
+            </svg>
+          </Button>
+        </Col>
       </Row>
       <Row>
         <Col>
-          <Card
-            style={{ width: '18rem' }}
-            bg="light"
-            onClick={handleCreateForm}
-            className="add-card"
-          >
-            <Card.Body>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="9rem"
-                fill="grey"
-                className="bi bi-file-plus"
-                viewBox="1 0 13 13"
-              >
-                <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5V6z" />
-              </svg>
-            </Card.Body>
-          </Card>
+          {' '}
+          <Form>
+            <InputGroup className="my-3">
+              <Form.Control
+                onChange={(e) => setSearchName(e.target.value)}
+                placeholder="Search for snacks by names"
+              ></Form.Control>
+            </InputGroup>
+          </Form>
         </Col>
-
+      </Row>
+      <Row>
         {snacks
           .filter((snack: Snack) => {
             return searchName.toLowerCase() !== ''
@@ -183,7 +176,7 @@ function SnackList() {
                 <Card.Footer>
                   <Button
                     variant="primary"
-                    onClick={(event) => openCreateEditSnack(snack)}
+                    onClick={(event) => openEditSnack(snack)}
                   >
                     Update
                   </Button>
@@ -198,11 +191,16 @@ function SnackList() {
             </Col>
           ))}
       </Row>
-      {snacks.length === 0 && (
-        <div>
-          <label className="no-data-label">-No data has been found-</label>
-        </div>
-      )}
+      <Row>
+        <Col>
+          {snacks.length === 0 && (
+            <div>
+              <label className="no-data-label">-No data has been found-</label>
+            </div>
+          )}
+        </Col>
+      </Row>
+
       <ConfirmationModal />
       <SnackForm
         showForm={showForm}

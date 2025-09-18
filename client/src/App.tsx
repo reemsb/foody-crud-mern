@@ -1,10 +1,8 @@
 import './App.scss';
-// import {
-//   NotificationContainer,
-//   NotificationManager,
-// } from 'react-notifications';
 import { Col, Container, Navbar } from 'react-bootstrap';
-import SnackList from './components/SnackList.tsx';
+import SnackList from './components/SnackList';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 /**
  * Holds the one page application for managing snacks.
@@ -34,7 +32,7 @@ function App() {
           <SnackList />
         </Col>
       </Container>
-      {/* <NotificationContainer /> */}
+      <ToastContainer />
     </div>
   );
 }

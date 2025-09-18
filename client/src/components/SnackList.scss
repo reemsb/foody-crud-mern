@@ -2,26 +2,24 @@ label {
   text-align: center;
   font-weight: 700;
 }
-
+svg {
+  width: 20px;
+  height: 20px;
+}
 .snacks-container{
   display: flex;
   flex-direction: column;
-   .add-card {
-    margin-bottom: 9px;
-    height: 215px;
-    display: flex;
-    justify-content: center;
+  .create {
+    text-align: end;
   }
   .no-data-label {
     text-align: center;
-    background-color: #edf6bf;
     color: black;
     height: 50px;
     width: 200px;
   }
   .snack-item {
     margin-bottom: 10px;
-   
   }
   .card-text {
     text-align: left;
