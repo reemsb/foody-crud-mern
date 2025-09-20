@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import { Modal, Form, FormGroup, Row, Col } from 'react-bootstrap/';
 import './SnackForm.scss';
-import useSnackStore from '../stores/snackStore';
 import { Snack } from '../models/snack';
 import { getLocalDateTimeInput } from '../utils/utilsUI';
 import { toast } from 'react-toastify';
+import useSnackStore from '../stores/snackStore';
 
 //form props
 export type formProps = {
@@ -19,41 +19,38 @@ export type formProps = {
  * @param props
  * @returns createEditForm of a snack
  */
-function SnackForm(props: formProps) {
-  //store states
-  const addSnack = useSnackStore((state) => state.addSnack);
-  const editSnack = useSnackStore((state) => state.editSnack);
+function SnackForm({ showForm, callbackModal, selectedSnack }: formProps) {
+  const addSnackToList = useSnackStore((state) => state.addSnack);
+  const editSnackToList = useSnackStore((state) => state.editSnack);
 
-  //initial states in edit mode:
-  const initialValues: Partial<Snack> = props.selectedSnack
-    ? {
-        name: props.selectedSnack.name,
-        isFavorite: props.selectedSnack.isFavorite,
-        lastDayConsumed: props.selectedSnack.lastDayConsumed,
-        calories: {
-          value: props.selectedSnack.calories?.value,
-          unit: props.selectedSnack.calories?.unit,
-        },
-      }
-    : {
-        name: '',
-        isFavorite: false,
-        lastDayConsumed: new Date(),
-        calories: {
-          value: 0,
-          unit: 'Kcal',
-        },
-      };
+  //initial states in edit/create mode:
   //local states definition
-  const [name, setName] = useState(initialValues.name);
-  const [favorite, setFavorite] = useState(initialValues.isFavorite);
-  const [lastDay, setLastDay] = useState(initialValues.lastDayConsumed);
-  const [caloriesValue, setCaloriesValue] = useState(
-    initialValues?.calories?.value
-  );
-  const [cloriesUnit, setCaloriesUnit] = useState(
-    initialValues?.calories?.unit
-  );
+  const [name, setName] = useState('');
+  const [favorite, setFavorite] = useState(false);
+  const [lastDay, setLastDay] = useState<Date>(new Date());
+  const [caloriesValue, setCaloriesValue] = useState<number>(0);
+  const [cloriesUnit, setCaloriesUnit] = useState('kcal');
+
+  // reset or prefill form when selectedSnack changes
+  useEffect(() => {
+    console.log(
+      `use effect form: selectedSnack: ${JSON.stringify(selectedSnack)}`
+    );
+    if (selectedSnack) {
+      setName(selectedSnack.name);
+      setFavorite(selectedSnack.isFavorite);
+      setLastDay(selectedSnack.lastDayConsumed);
+      setCaloriesValue(selectedSnack.calories?.value ?? 0);
+      setCaloriesUnit(selectedSnack.calories?.unit ?? 'Kcal');
+    } else {
+      // reset for create mode
+      setName('');
+      setFavorite(false);
+      setLastDay(new Date());
+      setCaloriesValue(0);
+      setCaloriesUnit('Kcal');
+    }
+  }, [selectedSnack, showForm]);
 
   //callbacks
   const createSnack = useCallback(() => {
@@ -66,22 +63,20 @@ function SnackForm(props: formProps) {
         unit: cloriesUnit as string,
       },
     };
-    console.log('snack to be created: ' + snackToAdd.calories);
     Axios.post('http://localhost:3001/api/v1/snacks/', snackToAdd)
       .then((response) => {
-        addSnack(response.data);
-        props.callbackModal();
+        addSnackToList(response.data);
         toast.success(`${response.data.name} was added successfully!`);
       })
       .catch((error) => {
         toast.error('The snack was not added, something went wrong');
       });
-  }, [caloriesValue, cloriesUnit, favorite, lastDay, name]);
+  }, [addSnackToList, caloriesValue, cloriesUnit, favorite, lastDay, name]);
 
   const updateSnack = useCallback(() => {
-    if (!!props.selectedSnack) {
+    if (!!selectedSnack) {
       let snack: Snack = {
-        _id: props.selectedSnack._id,
+        _id: selectedSnack._id,
         name: name as string,
         lastDayConsumed: lastDay as Date,
         isFavorite: favorite as boolean,
@@ -92,11 +87,11 @@ function SnackForm(props: formProps) {
       };
       Axios.put('http://localhost:3001/api/v1/snacks/' + snack._id, snack)
         .then((response) => {
-          editSnack(response.data);
+          editSnackToList(response.data);
           toast.success(`${response.data.name} was updated successfully!`);
-          props.callbackModal();
         })
         .catch((error) => {
+          console.debug(error);
           toast.error('The snack was not updated, something went wrong');
         });
     } else {
@@ -105,29 +100,31 @@ function SnackForm(props: formProps) {
   }, [
     caloriesValue,
     cloriesUnit,
+    editSnackToList,
     favorite,
     lastDay,
     name,
-    props.selectedSnack,
-    editSnack,
-    props,
+    selectedSnack,
   ]);
 
   const CreateUpdateSnack = useCallback(() => {
-    if (props?.selectedSnack?._id) {
+    console.log(`callback in createUpdateSnack ${selectedSnack}`);
+    if (selectedSnack?._id) {
+      console.log('in update');
       updateSnack();
     } else {
+      console.log('in create');
       createSnack();
     }
-    props.callbackModal();
-  }, [createSnack, props, updateSnack]);
+    callbackModal();
+  }, [createSnack, updateSnack, selectedSnack, callbackModal]);
 
   //UI
   return (
-    <Modal show={props.showForm} onHide={props.callbackModal}>
+    <Modal show={showForm} onHide={callbackModal}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {props.selectedSnack?._id ? (
+          {selectedSnack?._id ? (
             <label>Update snack</label>
           ) : (
             <label>Add new snack</label>
@@ -209,7 +206,7 @@ function SnackForm(props: formProps) {
         <Button variant="primary" onClick={CreateUpdateSnack}>
           Save
         </Button>
-        <Button variant="secondary" onClick={props.callbackModal}>
+        <Button variant="secondary" onClick={callbackModal}>
           Close
         </Button>
       </Modal.Footer>

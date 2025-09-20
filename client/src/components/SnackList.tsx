@@ -29,14 +29,16 @@ function SnackList() {
   const deleteSnack = useSnackStore((state) => state.removeSnack);
   const [show, setShow] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [selectedSnack, setSelectedSnack] = useState(() => {
-    return {} as Snack;
-  });
+  const [selectedSnack, setSelectedSnack] = useState<Snack | undefined>(
+    undefined
+  );
+
   const [searchName, setSearchName] = useState('');
 
   // open create form handler
   const handleCreateForm = useCallback(() => {
     console.log('show the create form');
+    setSelectedSnack(undefined);
     setShowForm(true);
   }, []);
   // open form to edit the selected snack
@@ -51,6 +53,7 @@ function SnackList() {
 
   // callback modal for closing edit form:
   const callbackModal = useCallback(() => {
+    console.log('executed the callback modal to close');
     setShowForm(false);
   }, []);
 
@@ -82,25 +85,27 @@ function SnackList() {
   // deletion confirmation modal
   const ConfirmationModal = () => {
     return (
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmation Required</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          You are about to delete this snack: {selectedSnack.name}!
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="primary"
-            onClick={() => handleDeletion(selectedSnack._id)}
-          >
-            Delete
-          </Button>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      !!selectedSnack && (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation Required</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            You are about to delete this snack: {selectedSnack!.name!}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="primary"
+              onClick={() => handleDeletion(selectedSnack!._id!)}
+            >
+              Delete
+            </Button>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )
     );
   };
 
@@ -204,7 +209,7 @@ function SnackList() {
       <ConfirmationModal />
       <SnackForm
         showForm={showForm}
-        selectedSnack={selectedSnack}
+        selectedSnack={selectedSnack!}
         callbackModal={callbackModal}
       />
     </Container>
