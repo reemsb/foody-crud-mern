@@ -2,13 +2,27 @@
 
 > A simple app to demonstrate the use of mongoDB (mongoose), REACTJS, Express JS and node js and linking a server side written in express with React built frontend.
 
-- **[React](https://facebook.github.io/react/)** (18.x)
-- **[Express](https://expressjs.com/)** (4.x)
-- **[Mongoose](https://mongoosejs.com/)** (6.x)
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 05 50" src="https://github.com/user-attachments/assets/bea2b5d3-d183-4138-82d9-8df4b81857e0" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 01" src="https://github.com/user-attachments/assets/a637bcf3-1bd7-4da6-9a47-d980a59b1be8" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 08" src="https://github.com/user-attachments/assets/06ffd551-cf6c-431c-b6e3-e7398a671a8a" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 38" src="https://github.com/user-attachments/assets/70fbff33-b652-4c9f-bda3-d86d9f6b358f" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 07 35" src="https://github.com/user-attachments/assets/ecb35791-67be-482e-82c6-d277c64cac64" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 12 45" src="https://github.com/user-attachments/assets/1cc8a18e-f66c-4e1e-b0a5-568cdfc16ed9" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 13 00" src="https://github.com/user-attachments/assets/4d94fcf0-4e7e-44cc-a9c5-a0c0b1333e99" />
+<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 14 52" src="https://github.com/user-attachments/assets/81b97f67-8702-4a8b-ac0e-63515555b878" />
+<img width="1800" height="704" alt="Screenshot 2025-09-20 at 10 15 26" src="https://github.com/user-attachments/assets/4953fa85-ea42-432a-a806-6dc0303a4bf1" />
+
+> 
+---
+# Technologies
+
+- **[React](https://facebook.github.io/react/)** (19.x)
+- **[Express](https://expressjs.com/)** (5.x)
+- **[Mongoose](https://mongoosejs.com/)** (8.x)
 - **[Typescript](https://www.typescriptlang.org/)** (4.x)
 - **[Zustand](https://github.com/pmndrs/zustand)**
 - **[SASS](http://sass-lang.com/)** (1.x)
-- **[ESlint](https://eslint.org/docs/latest/)**
+- **[ESlint](https://eslint.org/docs/latest/)** (8.x)
 
 ---
 
