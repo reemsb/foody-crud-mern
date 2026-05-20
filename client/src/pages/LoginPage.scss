@@ -1,0 +1,270 @@
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+// Floating glow orbs (drifting in the background)
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.orb-lime {
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(
+    circle at center,
+    rgba(197, 251, 69, 0.85),
+    rgba(197, 251, 69, 0) 65%
+  );
+  top: -160px;
+  left: -160px;
+  opacity: 0.85;
+  animation: orb-drift-a 22s ease-in-out infinite;
+}
+
+.orb-cyan {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle at center,
+    rgba(70, 200, 240, 0.7),
+    rgba(70, 200, 240, 0) 65%
+  );
+  bottom: -200px;
+  right: -180px;
+  opacity: 0.75;
+  animation: orb-drift-b 28s ease-in-out infinite;
+}
+
+.orb-violet {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(
+    circle at center,
+    rgba(170, 110, 235, 0.55),
+    rgba(170, 110, 235, 0) 65%
+  );
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+  animation: orb-drift-c 32s ease-in-out infinite;
+}
+
+// A faint grain/noise vignette on top of the orbs so it feels less "gradient on a black canvas"
+.shell-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 50% 50%,
+      transparent 40%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
+}
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(120px, 90px) scale(1.1); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-110px, -80px) scale(1.08); }
+}
+
+@keyframes orb-drift-c {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-60%, -38%) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb {
+    animation: none;
+  }
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(20, 20, 23, 0.55);
+  backdrop-filter: saturate(140%) blur(24px);
+  -webkit-backdrop-filter: saturate(140%) blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  padding: 2.4rem 2rem 2rem;
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+
+  .auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    color: var(--text);
+
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(197, 251, 69, 0.7);
+    }
+
+    .brand-sep {
+      color: var(--text-faint);
+    }
+
+    .brand-sub {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+  }
+
+  .auth-heading {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+  }
+
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 3px;
+    background: var(--surface);
+
+    button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.45rem 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition:
+        color 0.18s var(--easing),
+        background-color 0.18s var(--easing);
+
+      &:hover {
+        color: var(--text);
+      }
+
+      &.is-active {
+        background: var(--accent);
+        color: var(--accent-fg);
+      }
+    }
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      margin-bottom: 0.4rem;
+    }
+
+    .submit-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 0.7rem 1rem;
+      font-weight: 500;
+      margin-top: 0.3rem;
+    }
+
+    .field-error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
+  }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-faint);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+  }
+
+  .auth-google {
+    display: flex;
+    justify-content: center;
+
+    .g-signin-button {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .auth-footer {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.78rem;
+    line-height: 1.4;
+
+    a {
+      color: var(--text-muted);
+
+      &:hover {
+        color: var(--accent);
+      }
+    }
+  }
+}

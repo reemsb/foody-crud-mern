@@ -1,28 +1,418 @@
-label {
-  text-align: center;
-  font-weight: 700;
-}
-svg {
-  width: 20px;
-  height: 20px;
-}
-.snacks-container{
+.snacks-page {
   display: flex;
   flex-direction: column;
-  .create {
-    text-align: end;
+  gap: 1.5rem;
+}
+
+// ---- Toolbar -----------------------------------------------------------------
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+
+  .toolbar-title {
+    h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .count {
+      color: var(--text-faint);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
   }
-  .no-data-label {
-    text-align: center;
-    color: black;
-    height: 50px;
-    width: 200px;
+
+  .toolbar-actions {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
+    justify-content: flex-end;
   }
-  .snack-item {
-    margin-bottom: 10px;
+
+  // Pill toggles (Favorites filter)
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color 0.18s var(--easing),
+      border-color 0.18s var(--easing),
+      color 0.18s var(--easing);
+
+    &:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    &.is-on {
+      background: rgba(197, 251, 69, 0.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    i {
+      font-size: 0.95rem;
+    }
   }
-  .card-text {
-    text-align: left;
-    word-wrap: break-word;
+
+  // Segmented view toggle (Grid / Diary)
+  .view-toggle {
+    display: inline-flex;
+    padding: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+
+    button {
+      width: 34px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition:
+        background-color 0.18s var(--easing),
+        color 0.18s var(--easing);
+
+      &:hover {
+        color: var(--text);
+      }
+
+      &.is-active {
+        background: var(--accent);
+        color: var(--accent-fg);
+      }
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .search {
+    position: relative;
+    width: min(360px, 100%);
+
+    input {
+      padding-left: 2.4rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      left: 0.85rem;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+  }
+}
+
+// ---- Card grid ---------------------------------------------------------------
+.snack-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+// ---- Single card -------------------------------------------------------------
+.snack-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color 0.18s var(--easing),
+    background-color 0.18s var(--easing),
+    box-shadow 0.18s var(--easing),
+    transform 0.18s var(--easing);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius);
+    background: radial-gradient(
+      400px 80px at 0% 0%,
+      rgba(197, 251, 69, 0.06),
+      transparent 60%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s var(--easing);
+  }
+
+  &:hover {
+    border-color: var(--border-hover);
+    background: var(--surface-2);
+    box-shadow: var(--shadow-md);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  .snack-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    .snack-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      word-break: break-word;
+    }
+
+    .fav {
+      font-size: 1.1rem;
+      line-height: 1;
+      color: var(--text-faint);
+
+      &.is-fav {
+        color: var(--accent);
+        filter: drop-shadow(0 0 6px rgba(197, 251, 69, 0.4));
+      }
+    }
+  }
+
+  .snack-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+
+      .meta-key {
+        color: var(--text-faint);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.7rem;
+      }
+
+      .meta-val {
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        text-align: right;
+      }
+    }
+  }
+
+  .snack-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+
+    .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// ---- Diary view --------------------------------------------------------------
+.diary {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.diary-day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+
+    .day-pill {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(197, 251, 69, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .day-name {
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .day-date {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+    }
+
+    .day-count {
+      margin-left: auto;
+      color: var(--text-faint);
+      font-size: 0.78rem;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .day-items {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.diary-row {
+  display: grid;
+  grid-template-columns: 70px 24px 1fr auto auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 0.4rem;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.18s var(--easing);
+  cursor: default;
+
+  &:hover {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+
+    .diary-actions {
+      opacity: 1;
+    }
+  }
+
+  .diary-time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .diary-fav {
+    font-size: 1rem;
+    color: var(--text-faint);
+
+    &.is-fav {
+      color: var(--accent);
+      filter: drop-shadow(0 0 6px rgba(197, 251, 69, 0.4));
+    }
+  }
+
+  .diary-name {
+    color: var(--text);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .diary-cal {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .diary-actions {
+    display: inline-flex;
+    gap: 0.3rem;
+    opacity: 0;
+    transition: opacity 0.18s var(--easing);
+
+    button {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition:
+        color 0.15s var(--easing),
+        border-color 0.15s var(--easing);
+
+      &:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      &.danger:hover {
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+
+      i {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 56px 20px 1fr auto;
+
+    .diary-actions {
+      display: none;
+    }
+  }
+}
+
+// ---- Empty state -------------------------------------------------------------
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+
+  .empty-icon {
+    font-size: 2rem;
+    color: var(--text-faint);
+    margin-bottom: 0.5rem;
+    display: block;
   }
 }

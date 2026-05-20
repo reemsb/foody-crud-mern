@@ -1,21 +1,22 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model } from "mongoose"
 
-//define the schema.
-const snackSchema= new Schema({
-  name: {
-    type: String,
-    required: true
+const snackSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    name: { type: String, required: true, trim: true },
+    lastDayConsumed: Date,
+    isFavorite: Boolean,
+    calories: {
+      value: { type: Number },
+      unit: { type: String },
+    },
   },
-  lastDayConsumed: Date,
-  isFavorite: Boolean,
-  calories: {
-    value: { type: Number },
-    unit: { type: String }
-  }
-  }, {
-  versionKey: false,
-  timestamps: true
-  })
-const Snack = model("Snack", snackSchema)
+  { versionKey: false, timestamps: true },
+)
 
-export default Snack
+export default model("Snack", snackSchema)

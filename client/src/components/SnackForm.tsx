@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Modal, Form, FormGroup, Row, Col, Button } from 'react-bootstrap';
+import { Modal, Form, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { Snack } from '../models/snack';
 import { getLocalDateTimeInput } from '../utils/utilsUI';
@@ -25,6 +25,7 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
   const [lastDay, setLastDay] = useState<Date>(new Date());
   const [caloriesValue, setCaloriesValue] = useState<number>(0);
   const [caloriesUnit, setCaloriesUnit] = useState<Unit>('Kcal');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (selectedSnack) {
@@ -51,9 +52,9 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
         calories: { value: caloriesValue, unit: caloriesUnit },
       });
       addSnackToStore(data);
-      toast.success(`${data.name} was added successfully!`);
+      toast.success(`${data.name} added`);
     } catch {
-      toast.error('The snack was not added — something went wrong');
+      toast.error('Could not add snack');
     }
   }, [addSnackToStore, caloriesUnit, caloriesValue, favorite, lastDay, name]);
 
@@ -67,9 +68,9 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
         calories: { value: caloriesValue, unit: caloriesUnit },
       });
       editSnackInStore(data);
-      toast.success(`${data.name} was updated successfully!`);
+      toast.success(`${data.name} updated`);
     } catch {
-      toast.error('The snack was not updated — something went wrong');
+      toast.error('Could not update snack');
     }
   }, [
     caloriesUnit,
@@ -81,36 +82,47 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
     selectedSnack,
   ]);
 
-  const handleSubmit = useCallback(async () => {
-    if (selectedSnack?._id) {
-      await submitUpdate();
-    } else {
-      await submitCreate();
-    }
-    onClose();
-  }, [selectedSnack, submitCreate, submitUpdate, onClose]);
+  const handleSubmit = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      if (!name.trim() || submitting) return;
+      setSubmitting(true);
+      try {
+        if (selectedSnack?._id) {
+          await submitUpdate();
+        } else {
+          await submitCreate();
+        }
+        onClose();
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [name, submitting, selectedSnack, submitCreate, submitUpdate, onClose],
+  );
+
+  const isEditing = Boolean(selectedSnack?._id);
 
   return (
-    <Modal show={showForm} onHide={onClose}>
+    <Modal show={showForm} onHide={onClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>
-          {selectedSnack?._id ? 'Update snack' : 'Add new snack'}
-        </Modal.Title>
+        <Modal.Title>{isEditing ? 'Edit snack' : 'New snack'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form className="create-form">
-          <Form.Group className="mb-3">
+        <Form className="snack-form" onSubmit={handleSubmit}>
+          <Form.Group className="field">
             <Form.Label>Name</Form.Label>
             <Form.Control
               type="text"
               required
-              placeholder="snack name"
+              placeholder="e.g. Dark chocolate"
               value={name}
               onChange={(event) => setName(event.target.value)}
               autoFocus
             />
           </Form.Group>
-          <Form.Group className="mb-3">
+
+          <Form.Group className="field">
             <Form.Label>Last date consumed</Form.Label>
             <Form.Control
               type="datetime-local"
@@ -118,47 +130,46 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
               max={getLocalDateTimeInput(new Date())}
               onChange={(event) =>
                 setLastDay(
-                  event.target.value ? new Date(event.target.value) : new Date(),
+                  event.target.value
+                    ? new Date(event.target.value)
+                    : new Date(),
                 )
               }
             />
           </Form.Group>
-          <FormGroup className="mb-3">
+
+          <Form.Group className="field">
             <Form.Label>Calories</Form.Label>
-            <Row className="calories-input">
-              <Col>
-                <Form.Control
-                  aria-label="Calories"
-                  type="number"
-                  placeholder="calories"
-                  value={caloriesValue}
-                  min="0"
-                  onChange={(event) =>
-                    setCaloriesValue(Number(event.target.value) || 0)
-                  }
-                />
-              </Col>
-              <Col>
-                <Form.Select
-                  aria-label="Unit"
-                  value={caloriesUnit}
-                  onChange={(event) =>
-                    setCaloriesUnit(event.target.value as Unit)
-                  }
-                >
-                  {UNITS.map((unit) => (
-                    <option key={unit} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-            </Row>
-          </FormGroup>
-          <Form.Group className="mb-3">
+            <div className="calories-row">
+              <Form.Control
+                aria-label="Calories value"
+                type="number"
+                placeholder="0"
+                value={caloriesValue || ''}
+                min={0}
+                onChange={(event) =>
+                  setCaloriesValue(Number(event.target.value) || 0)
+                }
+              />
+              <Form.Select
+                aria-label="Calorie unit"
+                value={caloriesUnit}
+                onChange={(event) => setCaloriesUnit(event.target.value as Unit)}
+              >
+                {UNITS.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+          </Form.Group>
+
+          <Form.Group className="field">
             <Form.Check
               type="checkbox"
-              label="Favorite"
+              id="snack-favorite"
+              label="Mark as favorite"
               checked={favorite}
               onChange={(event) => setFavorite(event.target.checked)}
             />
@@ -166,11 +177,15 @@ function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={handleSubmit}>
-          Save
+        <Button variant="secondary" onClick={onClose} disabled={submitting}>
+          Cancel
         </Button>
-        <Button variant="secondary" onClick={onClose}>
-          Close
+        <Button
+          variant="primary"
+          onClick={() => handleSubmit()}
+          disabled={!name.trim() || submitting}
+        >
+          {submitting ? 'Saving…' : isEditing ? 'Save changes' : 'Add snack'}
         </Button>
       </Modal.Footer>
     </Modal>
