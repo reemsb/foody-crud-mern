@@ -111,4 +111,4 @@ MIT — see [LICENSE](./LICENSE) (or the `license` field in `package.json`).
 
 ## Author
 
-[Andrea Barone](https://gitlab.com/rimssboui) · [GitHub mirror](https://github.com/reemsb/foody-crud-mern)
+[Rim Sboui](https://gitlab.com/rimssboui) · [GitHub mirror](https://github.com/reemsb/foody-crud-mern)

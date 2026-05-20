@@ -10,6 +10,7 @@ import logger from "./utils/logger.js"
 import errorHandler from "./middlewares/error.middleware.js"
 import notFound from "./middlewares/notfound.middleware.js"
 import snackRoutes from "./routes/snack.routes.js"
+import authRoutes from "./routes/auth.routes.js"
 
 const app = express()
 
@@ -17,7 +18,15 @@ app.set("trust proxy", config.trustProxy)
 app.use(helmet())
 app.use(compression())
 app.use(express.json())
-app.use(cors())
+app.use(
+  cors({
+    origin:
+      config.corsOrigin === "*"
+        ? true
+        : config.corsOrigin.split(",").map((o) => o.trim()),
+    credentials: true,
+  }),
+)
 
 const limiter = new RateLimiterMemory({
   points: config.rateLimit.points,
@@ -33,6 +42,7 @@ app.use((req, res, next) => {
 
 app.get("/healthz", (req, res) => res.json({ ok: true }))
 
+app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/snacks", snackRoutes)
 app.use(notFound)
 app.use(errorHandler)
