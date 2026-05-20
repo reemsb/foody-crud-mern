@@ -1,49 +1,39 @@
 import { useCallback, useEffect, useState } from 'react';
-import Axios from 'axios';
-import Button from 'react-bootstrap/Button';
-import { Modal, Form, FormGroup, Row, Col } from 'react-bootstrap/';
-import './SnackForm.scss';
+import { Modal, Form, FormGroup, Row, Col, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { Snack } from '../models/snack';
 import { getLocalDateTimeInput } from '../utils/utilsUI';
-import { toast } from 'react-toastify';
 import useSnackStore from '../stores/snackStore';
+import { api } from '../api/client';
+import './SnackForm.scss';
 
-//form props
-export type formProps = {
+export type SnackFormProps = {
   showForm: boolean;
-  callbackModal: any;
+  onClose: () => void;
   selectedSnack?: Snack;
 };
-/**
- * Create and edit form for a snack.
- * @param props
- * @returns createEditForm of a snack
- */
-function SnackForm({ showForm, callbackModal, selectedSnack }: formProps) {
-  const addSnackToList = useSnackStore((state) => state.addSnack);
-  const editSnackToList = useSnackStore((state) => state.editSnack);
 
-  //initial states in edit/create mode:
-  //local states definition
+const UNITS = ['Kcal', 'Kj'] as const;
+type Unit = (typeof UNITS)[number];
+
+function SnackForm({ showForm, onClose, selectedSnack }: SnackFormProps) {
+  const addSnackToStore = useSnackStore((state) => state.addSnack);
+  const editSnackInStore = useSnackStore((state) => state.editSnack);
+
   const [name, setName] = useState('');
   const [favorite, setFavorite] = useState(false);
   const [lastDay, setLastDay] = useState<Date>(new Date());
   const [caloriesValue, setCaloriesValue] = useState<number>(0);
-  const [cloriesUnit, setCaloriesUnit] = useState('kcal');
+  const [caloriesUnit, setCaloriesUnit] = useState<Unit>('Kcal');
 
-  // reset or prefill form when selectedSnack changes
   useEffect(() => {
-    console.log(
-      `use effect form: selectedSnack: ${JSON.stringify(selectedSnack)}`
-    );
     if (selectedSnack) {
       setName(selectedSnack.name);
       setFavorite(selectedSnack.isFavorite);
-      setLastDay(selectedSnack.lastDayConsumed);
+      setLastDay(new Date(selectedSnack.lastDayConsumed));
       setCaloriesValue(selectedSnack.calories?.value ?? 0);
-      setCaloriesUnit(selectedSnack.calories?.unit ?? 'Kcal');
+      setCaloriesUnit((selectedSnack.calories?.unit as Unit) ?? 'Kcal');
     } else {
-      // reset for create mode
       setName('');
       setFavorite(false);
       setLastDay(new Date());
@@ -52,165 +42,139 @@ function SnackForm({ showForm, callbackModal, selectedSnack }: formProps) {
     }
   }, [selectedSnack, showForm]);
 
-  //callbacks
-  const createSnack = useCallback(() => {
-    let snackToAdd: Partial<Snack> = {
-      name: name,
-      lastDayConsumed: lastDay,
-      isFavorite: favorite,
-      calories: {
-        value: caloriesValue as number,
-        unit: cloriesUnit as string,
-      },
-    };
-    Axios.post('http://localhost:3001/api/v1/snacks/', snackToAdd)
-      .then((response) => {
-        addSnackToList(response.data);
-        toast.success(`${response.data.name} was added successfully!`);
-      })
-      .catch((error) => {
-        toast.error('The snack was not added, something went wrong');
+  const submitCreate = useCallback(async () => {
+    try {
+      const { data } = await api.post<Snack>('/snacks', {
+        name,
+        lastDayConsumed: lastDay,
+        isFavorite: favorite,
+        calories: { value: caloriesValue, unit: caloriesUnit },
       });
-  }, [addSnackToList, caloriesValue, cloriesUnit, favorite, lastDay, name]);
+      addSnackToStore(data);
+      toast.success(`${data.name} was added successfully!`);
+    } catch {
+      toast.error('The snack was not added — something went wrong');
+    }
+  }, [addSnackToStore, caloriesUnit, caloriesValue, favorite, lastDay, name]);
 
-  const updateSnack = useCallback(() => {
-    if (!!selectedSnack) {
-      let snack: Snack = {
-        _id: selectedSnack._id,
-        name: name as string,
-        lastDayConsumed: lastDay as Date,
-        isFavorite: favorite as boolean,
-        calories: {
-          value: caloriesValue as number,
-          unit: cloriesUnit as string,
-        },
-      };
-      Axios.put('http://localhost:3001/api/v1/snacks/' + snack._id, snack)
-        .then((response) => {
-          editSnackToList(response.data);
-          toast.success(`${response.data.name} was updated successfully!`);
-        })
-        .catch((error) => {
-          console.debug(error);
-          toast.error('The snack was not updated, something went wrong');
-        });
-    } else {
-      console.warn('No snack found to edit here');
+  const submitUpdate = useCallback(async () => {
+    if (!selectedSnack) return;
+    try {
+      const { data } = await api.put<Snack>(`/snacks/${selectedSnack._id}`, {
+        name,
+        lastDayConsumed: lastDay,
+        isFavorite: favorite,
+        calories: { value: caloriesValue, unit: caloriesUnit },
+      });
+      editSnackInStore(data);
+      toast.success(`${data.name} was updated successfully!`);
+    } catch {
+      toast.error('The snack was not updated — something went wrong');
     }
   }, [
+    caloriesUnit,
     caloriesValue,
-    cloriesUnit,
-    editSnackToList,
+    editSnackInStore,
     favorite,
     lastDay,
     name,
     selectedSnack,
   ]);
 
-  const CreateUpdateSnack = useCallback(() => {
-    console.log(`callback in createUpdateSnack ${selectedSnack}`);
+  const handleSubmit = useCallback(async () => {
     if (selectedSnack?._id) {
-      console.log('in update');
-      updateSnack();
+      await submitUpdate();
     } else {
-      console.log('in create');
-      createSnack();
+      await submitCreate();
     }
-    callbackModal();
-  }, [createSnack, updateSnack, selectedSnack, callbackModal]);
+    onClose();
+  }, [selectedSnack, submitCreate, submitUpdate, onClose]);
 
-  //UI
   return (
-    <Modal show={showForm} onHide={callbackModal}>
+    <Modal show={showForm} onHide={onClose}>
       <Modal.Header closeButton>
         <Modal.Title>
-          {selectedSnack?._id ? (
-            <label>Update snack</label>
-          ) : (
-            <label>Add new snack</label>
-          )}
+          {selectedSnack?._id ? 'Update snack' : 'Add new snack'}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <>
-          <Form className="create-form">
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                required
-                placeholder="snack name"
-                value={name}
-                pattern="[a-zA-Z]"
-                onChange={(event) => setName(event.target.value)}
-                autoFocus
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Last Date consumed:</Form.Label>
-              <Form.Control
-                type="datetime-local"
-                value={getLocalDateTimeInput(lastDay)}
-                max={getLocalDateTimeInput(new Date())}
-                onChange={(event) => {
-                  if (event.target.value !== null) {
-                    setLastDay(new Date(event.target.value));
-                  } else {
-                    setLastDay(new Date());
+        <Form className="create-form">
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              required
+              placeholder="snack name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoFocus
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Last date consumed</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              value={getLocalDateTimeInput(lastDay)}
+              max={getLocalDateTimeInput(new Date())}
+              onChange={(event) =>
+                setLastDay(
+                  event.target.value ? new Date(event.target.value) : new Date(),
+                )
+              }
+            />
+          </Form.Group>
+          <FormGroup className="mb-3">
+            <Form.Label>Calories</Form.Label>
+            <Row className="calories-input">
+              <Col>
+                <Form.Control
+                  aria-label="Calories"
+                  type="number"
+                  placeholder="calories"
+                  value={caloriesValue}
+                  min="0"
+                  onChange={(event) =>
+                    setCaloriesValue(Number(event.target.value) || 0)
                   }
-                }}
-              />
-            </Form.Group>
-            <FormGroup className="mb-3">
-              <Form.Label>Calories: </Form.Label>
-              <Row className="calories-input">
-                <Col>
-                  <Form.Control
-                    aria-label="Calories"
-                    type="number"
-                    placeholder="calories"
-                    value={caloriesValue}
-                    min="0"
-                    onChange={(event) =>
-                      setCaloriesValue(parseInt(event.target.value))
-                    }
-                  />
-                </Col>
-                <Col>
-                  <Form.Select
-                    aria-label="Unit"
-                    onChange={(event) => {
-                      setCaloriesUnit(event.target.value);
-                    }}
-                  >
-                    <option value="Kcal">Kcal</option>
-                    <option value="Kj">Kj</option>
-                  </Form.Select>
-                </Col>
-              </Row>
-            </FormGroup>
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label="Favorite"
-                checked={favorite}
-                onChange={(event) => {
-                  setFavorite(event.target.checked);
-                }}
-              />
-            </Form.Group>
-          </Form>
-        </>
+                />
+              </Col>
+              <Col>
+                <Form.Select
+                  aria-label="Unit"
+                  value={caloriesUnit}
+                  onChange={(event) =>
+                    setCaloriesUnit(event.target.value as Unit)
+                  }
+                >
+                  {UNITS.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Col>
+            </Row>
+          </FormGroup>
+          <Form.Group className="mb-3">
+            <Form.Check
+              type="checkbox"
+              label="Favorite"
+              checked={favorite}
+              onChange={(event) => setFavorite(event.target.checked)}
+            />
+          </Form.Group>
+        </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={CreateUpdateSnack}>
+        <Button variant="primary" onClick={handleSubmit}>
           Save
         </Button>
-        <Button variant="secondary" onClick={callbackModal}>
+        <Button variant="secondary" onClick={onClose}>
           Close
         </Button>
       </Modal.Footer>
     </Modal>
   );
 }
+
 export default SnackForm;

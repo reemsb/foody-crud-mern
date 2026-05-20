@@ -1,77 +1,112 @@
-# FOODY CRUD MERN
+# Foody — MERN Snack Diary
 
-> A simple app to demonstrate the use of mongoDB (mongoose), REACTJS, Express JS and node js and linking a server side written in express with React built frontend.
+A small full-stack CRUD app for tracking snacks: their last consumption date, favorite status, and calorie content. Built as a practice project to demonstrate a clean MERN stack with a modern React front-end and a production-ready Express API.
 
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 05 50" src="https://github.com/user-attachments/assets/bea2b5d3-d183-4138-82d9-8df4b81857e0" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 01" src="https://github.com/user-attachments/assets/a637bcf3-1bd7-4da6-9a47-d980a59b1be8" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 08" src="https://github.com/user-attachments/assets/06ffd551-cf6c-431c-b6e3-e7398a671a8a" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 06 38" src="https://github.com/user-attachments/assets/70fbff33-b652-4c9f-bda3-d86d9f6b358f" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 07 35" src="https://github.com/user-attachments/assets/ecb35791-67be-482e-82c6-d277c64cac64" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 12 45" src="https://github.com/user-attachments/assets/1cc8a18e-f66c-4e1e-b0a5-568cdfc16ed9" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 13 00" src="https://github.com/user-attachments/assets/4d94fcf0-4e7e-44cc-a9c5-a0c0b1333e99" />
-<img width="1800" height="530" alt="Screenshot 2025-09-20 at 10 14 52" src="https://github.com/user-attachments/assets/81b97f67-8702-4a8b-ac0e-63515555b878" />
-<img width="1800" height="704" alt="Screenshot 2025-09-20 at 10 15 26" src="https://github.com/user-attachments/assets/4953fa85-ea42-432a-a806-6dc0303a4bf1" />
+![screenshot](https://github.com/user-attachments/assets/bea2b5d3-d183-4138-82d9-8df4b81857e0)
 
-> 
----
-# Technologies
+## Stack
 
-- **[React](https://facebook.github.io/react/)** (19.x)
-- **[Express](https://expressjs.com/)** (5.x)
-- **[Mongoose](https://mongoosejs.com/)** (8.x)
-- **[Typescript](https://www.typescriptlang.org/)** (4.x)
-- **[Zustand](https://github.com/pmndrs/zustand)**
-- **[SASS](http://sass-lang.com/)** (1.x)
-- **[ESlint](https://eslint.org/docs/latest/)** (8.x)
+| Layer    | Tech                                                                       |
+| -------- | -------------------------------------------------------------------------- |
+| Frontend | React 19, TypeScript 5, Vite 6, react-bootstrap, Zustand, react-toastify   |
+| Backend  | Node 20+, Express 5, Mongoose 8, helmet, rate-limiter-flexible, winston    |
+| Database | MongoDB (Atlas or local)                                                   |
+| Tooling  | ESLint 9 (flat config), Prettier 3, Docker, docker-compose                 |
 
----
+## Project layout
 
-## Server side
-
-- The backend is build using ExpressJS, it handles requests from the frontend (client project) to get,add,update and delete snack.
-- The database is mongoDB and it is stored on [MongoDB Atlas](https://www.mongodb.com/atlas/database), The project uses Mongoose as the object Data Modeling (ODM), it manages relationship between data, provides schema validation and translates objects in Node.js (checkout the model in FOODY-CRUD-MERN>server>models>Snack.js to see the schema for snack.).
-- server -> index.js: has the logic of our backend (handling API requests, connecting to the mongoDB).
-
-## Client side
-
-- The client project, representing the frontend part of the application, is build with ReactJS. It uses typescript and react-boostrap to create the UI. It is a single page application.
-
----
+```
+foody-crud-mern/
+├── client/          # React + Vite SPA
+├── server/          # Express API
+├── docker-compose.yml
+└── README.md
+```
 
 ## Getting started
 
-1. Settup ur database in mongoDB atlas account.
+### 1. Prerequisites
 
-2. Add whitelist IP address (example ur own, automatically detected through the UI interface) as trusted host.
+- Node.js 20 or later
+- A MongoDB connection string (free tier on [MongoDB Atlas](https://www.mongodb.com/atlas/database) works fine)
+- Docker (optional, only for the compose workflow)
 
-3. Use the links provided to connect your local mongo compass to the cloud DB and use another link to connect ur app in server>index.js.
+### 2. Configure environment
 
-4. run `npm install` to have the needed modules respectively in client and server folders.
+At the repo root, create a `.env` from the example and fill in your MongoDB URI:
 
-5. Run backend through command line in server folder:
+```bash
+cp .env.example .env
+# then edit MONGO_URI
+```
 
-- Development mode using nodemeon: `npm run devStart`.
-- Production mode: `npm start`.
+For the client, optionally point it at a non-default API:
 
-3. Run frontend through command line in client folder:
-   -run : `npm start`.
-4. Go to `http://localhost:3000`
+```bash
+cp client/.env.example client/.env
+```
 
-**Note**:
+### 3. Run locally (without Docker)
 
-- Clone the repository or download it for local settup.
-- replace `npm` with `yarn` if yarn is the used package manager.
+In two terminals:
 
----
+```bash
+# server
+cd server
+npm install
+npm run dev          # http://localhost:3001
 
-## Authors and acknowledgment
+# client
+cd client
+npm install
+npm run dev          # http://localhost:3000
+```
 
-- Github profile: [reemSB](https://github.com/reemsb)
+### 4. Run with docker-compose
+
+```bash
+docker compose up --build
+```
+
+Client → http://localhost:3000, server → http://localhost:3001.
+
+## API
+
+Base URL: `/api/v1`
+
+| Method | Path            | Description       |
+| ------ | --------------- | ----------------- |
+| GET    | `/snacks`       | List all snacks   |
+| POST   | `/snacks`       | Create a snack    |
+| PUT    | `/snacks/:id`   | Update a snack    |
+| DELETE | `/snacks/:id`   | Delete a snack    |
+| GET    | `/healthz`      | Health check      |
+
+### Snack schema
+
+```ts
+{
+  _id: string;
+  name: string;
+  lastDayConsumed: Date;
+  isFavorite: boolean;
+  calories: { value: number; unit: 'Kcal' | 'Kj' };
+}
+```
+
+## Scripts
+
+From the repo root:
+
+| Command              | What it does                            |
+| -------------------- | --------------------------------------- |
+| `npm run install:all`| Install dependencies in client + server |
+| `npm run lint`       | Lint both packages                      |
 
 ## License
 
-- MIT
+MIT — see [LICENSE](./LICENSE) (or the `license` field in `package.json`).
 
-## Contributing
+## Author
 
-The main functionality are there to perform a simple CRUD. It needs still some improvement (on UX level, code cleaness, add Unit tests) and can be refactored, forked and expanded.
+[Andrea Barone](https://gitlab.com/rimssboui) · [GitHub mirror](https://github.com/reemsb/foody-crud-mern)

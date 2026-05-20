@@ -1,14 +1,9 @@
-import './App.scss';
 import { Col, Container, Navbar } from 'react-bootstrap';
-import SnackList from './components/SnackList';
-import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import SnackList from './components/SnackList';
+import './App.scss';
 
-/**
- * Holds the one page application for managing snacks.
- * @author rsb
- * @returns App.tsx
- */
 function App() {
   return (
     <div className="App">

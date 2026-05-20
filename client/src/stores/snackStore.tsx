@@ -4,48 +4,21 @@ import { Snack } from '../models/snack';
 interface SnackState {
   snacks: Snack[];
   setSnacks: (snacks: Snack[]) => void;
-  addSnack: (snack: Partial<Snack>) => void;
+  addSnack: (snack: Snack) => void;
   removeSnack: (id: string) => void;
-  editSnack: (snack: Partial<Snack>) => void;
+  editSnack: (snack: Snack) => void;
 }
 
 const useSnackStore = create<SnackState>((set) => ({
-  // initial state
   snacks: [],
-  setSnacks: (snacks: Snack[]) =>
+  setSnacks: (snacks) => set({ snacks }),
+  addSnack: (snack) =>
+    set((state) => ({ snacks: [...state.snacks, snack] })),
+  removeSnack: (id) =>
+    set((state) => ({ snacks: state.snacks.filter((s) => s._id !== id) })),
+  editSnack: (updated) =>
     set((state) => ({
-      ...state,
-      snacks: [...state.snacks, ...snacks],
-    })),
-  // methods for manipulating state
-  addSnack: (snackAdded: Partial<Snack>) =>
-    set((state) => ({
-      ...state,
-      snacks: [...state.snacks, snackAdded as Snack],
-    })),
-  removeSnack: (removeID: string) =>
-    set((state) => ({
-      ...state,
-      snacks: state.snacks.filter((snack) => snack._id !== removeID),
-    })),
-  editSnack: (snackEdited: Partial<Snack>) =>
-    set((state) => ({
-      ...state,
-      snacks: state.snacks.map((snack) => {
-        if (snack._id === snackEdited._id) {
-          return {
-            _id: snackEdited._id,
-            name: snackEdited.name,
-            lastDayConsumed: snackEdited.lastDayConsumed,
-            isFavorite: snackEdited.isFavorite,
-            calories: {
-              value: snackEdited?.calories?.value,
-              unit: snackEdited?.calories?.unit,
-            },
-          } as Snack;
-        }
-        return snack;
-      }),
+      snacks: state.snacks.map((s) => (s._id === updated._id ? updated : s)),
     })),
 }));
 
