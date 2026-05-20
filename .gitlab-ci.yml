@@ -1,23 +1,37 @@
+default:
+  image: node:22-alpine
+
 stages:
-  - build
-  - deploy
+  - verify
 
-variables:
-  REGISTRY: registry.gitlab.com/reem_sb/foody-crud-mern
-
-server-build:
-  stage: build
+client:
+  stage: verify
+  cache:
+    key:
+      files:
+        - client/package-lock.json
+    paths:
+      - client/node_modules/
   script:
-    - docker build -t $REGISTRY/server:$CI_COMMIT_SHA server
-    - docker push $REGISTRY/server:$CI_COMMIT_SHA
+    - cd client
+    - npm ci --prefer-offline --no-audit --fund=false
+    - npm run lint
+    - npm run build
+  artifacts:
+    name: "client-build-$CI_COMMIT_SHORT_SHA"
+    paths:
+      - client/build/
+    expire_in: 1 week
 
-client-build:
-  stage: build
+server:
+  stage: verify
+  cache:
+    key:
+      files:
+        - server/package-lock.json
+    paths:
+      - server/node_modules/
   script:
-    - docker build -t $REGISTRY/client:$CI_COMMIT_SHA client
-    - docker push $REGISTRY/client:$CI_COMMIT_SHA
-
-deploy:
-  stage: deploy
-  script:
-    - echo "Deploy step depends on your AWS setup (ECS, EC2, etc.)"
+    - cd server
+    - npm ci --prefer-offline --no-audit --fund=false
+    - npm run lint

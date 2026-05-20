@@ -1,5 +1,7 @@
 # Foody — MERN Snack Diary
 
+[![pipeline status](https://gitlab.com/rimssboui/foody-crud-mern/badges/main/pipeline.svg)](https://gitlab.com/rimssboui/foody-crud-mern/-/commits/main)
+
 A small full-stack CRUD app for tracking snacks: their last consumption date, favorite status, and calorie content. Built as a practice project to demonstrate a clean MERN stack with a modern React front-end and a production-ready Express API.
 
 ![screenshot](https://github.com/user-attachments/assets/bea2b5d3-d183-4138-82d9-8df4b81857e0)
